@@ -840,15 +840,15 @@
                     const displayColorName = y.colorName || y.color || '未填寫顏色';
 
                     const card = `
-                        <div class="bg-planner-card rounded-xl p-5 border border-planner-warmgrey shadow-sm hover:shadow-md transition-shadow relative group flex flex-col justify-between">
+                        <div class="bg-planner-card rounded-xl px-5 pb-5 pt-16 border border-planner-warmgrey shadow-sm hover:shadow-md transition-shadow relative group flex flex-col justify-between">
                             
-                            <div class="absolute top-3 right-3 flex gap-2 opacity-100 z-20">
+                            <div class="absolute top-4 right-4 flex gap-2 opacity-100 z-20">
                                 <button type="button" onclick="editYarn('${y.id}')" class="p-2 text-planner-olive hover:text-planner-navy bg-planner-paper rounded-md border border-planner-warmgrey cursor-pointer hover:bg-planner-warmgrey transition-colors shadow-sm"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
                                 <button type="button" onclick="deleteYarn('${y.id}')" class="p-2 text-planner-rust hover:text-red-700 bg-planner-paper rounded-md border border-planner-warmgrey cursor-pointer hover:bg-red-100 transition-colors shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
                             </div>
 
                             <div>
-                                <div class="flex items-start justify-between border-b border-planner-lightgrey pb-4 mb-4 mt-2">
+                                <div class="flex items-start justify-between border-b border-planner-lightgrey pb-4 mb-4">
                                     <div class="pr-6">
                                         <h3 class="font-typewriter text-xl font-bold text-planner-navy flex items-center gap-2 mb-1">
                                             <div class="w-3.5 h-3.5 rounded-full border border-planner-warmgrey" style="background-color: ${guessColorHex(displayColorName)}"></div>
@@ -957,6 +957,7 @@
     </script>
 </body>
 </html>
+
 
 
 ```
