@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Planner | Crochet Inventory</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'planner-bg': '#EBE8E1',       
+                        'planner-paper': '#F7F6F2',    
+                        'planner-card': '#FFFFFF',     
+                        'planner-navy': '#2C3E50',     
+                        'planner-rust': '#A0522D',     
+                        'planner-sage': '#8F9B82',     
+                        'planner-olive': '#6B705C',    
+                        'planner-warmgrey': '#DEDCD5', 
+                        'planner-lightgrey': '#EAE8E3',
+                    },
+                    fontFamily: {
+                        sans: ['"Inter"', '"Noto Sans HK"', 'system-ui', 'sans-serif'],
+                        cursive: ['"Caveat"', 'cursive'],
+                        typewriter: ['"Special Elite"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- 引入 Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts 引入字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Special+Elite&family=Inter:wght@400;500;600;700&family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #EBE8E1;
+            color: #2C3E50;
+            font-family: 'Inter', 'Noto Sans HK', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .tablet-container {
+            width: 100%;
+            max-w: 64rem; 
+            background-color: #F7F6F2;
+            margin: 2rem auto;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(44, 62, 80, 0.08), 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .digital-input {
+            background: #FFFFFF;
+            border: 1px solid #DEDCD5;
+            color: #2C3E50;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-family: 'Special Elite', monospace;
+        }
+        .digital-input:focus {
+            outline: none;
+            border-color: #8F9B82;
+            box-shadow: 0 0 0 3px rgba(143, 155, 130, 0.15);
+        }
+
+        input[type="radio"]:checked + span, input[type="checkbox"]:checked + span {
+            background-color: #8F9B82; 
+            color: #FFFFFF;
+            border-color: #8F9B82;
+            font-weight: 500;
+        }
+        
+        .digital-btn span {
+            background-color: #EAE8E3; 
+            border: 1px solid transparent;
+            color: #2C3E50;
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-block;
+            font-family: 'Inter', sans-serif;
+        }
+        .digital-btn:hover span {
+            background-color: #DEDCD5;
+        }
+
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(107, 112, 92, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(107, 112, 92, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-color: #F7F6F2;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 隱藏 number input 的上下箭頭 */
+        .no-arrows::-webkit-inner-spin-button, 
+        .no-arrows::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        .no-arrows { -moz-appearance: textfield; }
+    </style>
+</head>
+<body class="selection:bg-planner-sage/30 selection:text-planner-navy">
+
+    <!-- 模擬平板電腦外框 -->
+    <main class="tablet-container">
+
+        <!-- 規劃器頭部導航區 -->
+        <header class="px-8 pt-8 pb-4 bg-planner-paper relative z-10 w-full">
+            <div class="flex justify-between items-start mb-8 relative">
+                <div class="flex items-start gap-4">
+                    <div>
+                        <h1 class="font-cursive text-5xl font-bold text-planner-rust mb-1 tracking-wide inline-block">
+                            For mimimi
+                        </h1>
+                        <div class="font-sans text-xs uppercase tracking-[0.2em] text-planner-navy font-semibold">
+                            Crochet Inventory & Scrapbook
+                        </div>
+                    </div>
+                    <!-- 手繪風冷線與書本插圖 -->
+                    <svg viewBox="0 0 140 110" class="w-32 h-24 pointer-events-none transform rotate-6 opacity-90 mt-2 hidden sm:block" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="35" cy="45" rx="25" ry="22" fill="#98A9BA" stroke="#5A524A" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M 18,35 Q 35,25 52,35 M 13,45 Q 35,35 57,45 M 18,55 Q 35,45 52,55 M 25,65 Q 35,55 45,65" fill="none" stroke="#5A524A" stroke-width="1.5" opacity="0.4" stroke-linecap="round"/>
+                        <ellipse cx="55" cy="60" rx="28" ry="24" fill="#DCA8A4" stroke="#5A524A" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M 35,50 Q 55,40 75,50 M 30,60 Q 55,50 80,60 M 35,70 Q 55,60 75,70 M 42,80 Q 55,70 68,80" fill="none" stroke="#5A524A" stroke-width="1.5" opacity="0.4" stroke-linecap="round"/>
+                        <g transform="translate(75, 40) rotate(-10)">
+                            <rect x="0" y="0" width="40" height="50" rx="2" fill="#EAE0D6" stroke="#5A524A" stroke-width="1.5"/>
+                            <path d="M 35,5 C 38,5 40,7 40,10 L 40,40 C 40,43 38,45 35,45" fill="none" stroke="#5A524A" stroke-width="1.5"/>
+                            <line x1="5" y1="10" x2="30" y2="10" stroke="#5A524A" stroke-width="1" opacity="0.5"/>
+                            <line x1="5" y1="18" x2="30" y2="18" stroke="#5A524A" stroke-width="1" opacity="0.5"/>
+                            <line x1="5" y1="26" x2="30" y2="26" stroke="#5A524A" stroke-width="1" opacity="0.5"/>
+                            <path d="M 20,35 Q 25,30 30,35 Q 25,40 20,35" fill="#8F9B82" stroke="#5A524A" stroke-width="1"/>
+                            <path d="M 20,35 Q 15,30 10,35 Q 15,40 20,35" fill="#8F9B82" stroke="#5A524A" stroke-width="1"/>
+                        </g>
+                    </svg>
+                </div>
+                
+                <!-- 頂部圖標集 -->
+                <div class="flex gap-5 text-planner-olive mt-2">
+                    <i data-lucide="heart" class="w-6 h-6 cursor-pointer hover:text-planner-rust transition-colors" onclick="showToast('我的最愛功能即將推出 ✨')"></i>
+                    <i data-lucide="folder" class="w-6 h-6 cursor-pointer hover:text-planner-navy transition-colors" onclick="showToast('資料夾分類功能即將推出 📁')"></i>
+                    <i data-lucide="file-text" class="w-6 h-6 cursor-pointer hover:text-planner-navy transition-colors" onclick="toggleDataModal()"></i>
+                </div>
+            </div>
+            
+            <!-- 導航標籤 -->
+            <div class="flex gap-8 border-b-2 border-planner-lightgrey w-full">
+                <button onclick="switchTab('add')" id="tab-add" class="pb-3 font-sans font-semibold text-lg text-planner-navy border-b-2 border-planner-navy -mb-[2px] transition-all">
+                    Record
+                </button>
+                <button onclick="switchTab('list')" id="tab-list" class="pb-3 font-sans font-semibold text-lg text-planner-olive hover:text-planner-navy border-b-2 border-transparent -mb-[2px] transition-all">
+                    Search
+                </button>
+            </div>
+        </header>
+
+        <!-- 內容滾動區 -->
+        <div class="flex-1 overflow-y-auto w-full">
+            <div class="px-8 py-6 w-full relative">
+
+                <!-- ================= 第1版面：寫下手帳記錄 ================= -->
+                <section id="page-add" class="animate-fade-in max-w-2xl relative">
+                    
+                    <form id="yarn-form" class="space-y-8">
+                        <input type="hidden" id="edit-id" value="">
+
+                        <!-- 1. 種類 -->
+                        <div>
+                            <label class="block font-sans font-bold text-planner-navy mb-3 text-sm uppercase tracking-wider">TYPE <span class="text-planner-rust">*</span></label>
+                            <div class="flex flex-wrap gap-3" id="group-category"></div>
+                        </div>
+
+                        <!-- 2. 地點 -->
+                        <div>
+                            <label class="block font-sans font-bold text-planner-navy mb-3 text-sm uppercase tracking-wider">LOCATION</label>
+                            <div class="flex flex-wrap gap-3" id="group-location"></div>
+                        </div>
+
+                        <!-- 3 & 4. 價錢與顏色名稱 -->
+                        <div class="grid grid-cols-2 gap-6 relative">
+                            <div>
+                                <label class="block font-sans font-bold text-planner-navy mb-3 text-sm uppercase tracking-wider">PRICE ($)</label>
+                                <input type="number" id="input-price" min="0" step="0.1" class="digital-input w-full px-4 py-3 text-lg">
+                            </div>
+                            <div>
+                                <label class="block font-sans font-bold text-planner-navy mb-3 text-sm uppercase tracking-wider flex items-center">COLOR NAME <span class="text-planner-rust text-[10px] ml-2 tracking-normal">(與色號二選一)</span></label>
+                                <input type="text" id="input-color-name" placeholder="例如：紅色..." class="digital-input w-full px-4 py-3 text-lg mb-3">
+                                
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='白'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">白</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='黑'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">黑</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='灰'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">灰</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='卡其'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">卡其</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='啡'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">啡</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='紅'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">紅</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='橙'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">橙</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='黃'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">黃</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='綠'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">綠</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='青'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">青</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='藍'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">藍</button>
+                                    <button type="button" onclick="document.getElementById('input-color-name').value='紫'" class="bg-white border border-planner-warmgrey text-planner-navy text-xs px-2.5 py-1 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium">紫</button>
+                                </div>
+                            </div>
+                            <!-- 手繪風毛線帽插圖 -->
+                            <svg viewBox="0 0 80 80" class="w-20 h-20 absolute -right-24 top-4 pointer-events-none transform rotate-12 opacity-80 hidden lg:block" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M 10,40 C 10,20 30,5 40,5 C 50,5 70,20 70,40 L 70,55 L 10,55 Z" fill="#DCA8A4" stroke="#5A524A" stroke-width="1.5" stroke-linejoin="round"/>
+                                <path d="M 20,25 Q 40,15 60,25 M 15,35 Q 40,25 65,35 M 15,45 Q 40,35 65,45" fill="none" stroke="#5A524A" stroke-width="1.5" opacity="0.4" stroke-linecap="round"/>
+                                <rect x="8" y="55" width="64" height="12" rx="2" fill="#F5EBE1" stroke="#5A524A" stroke-width="1.5" stroke-linejoin="round"/>
+                                <path d="M 12,61 L 68,61" fill="none" stroke="#5A524A" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
+                                <circle cx="40" cy="5" r="6" fill="#F5EBE1" stroke="#5A524A" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+
+                        <!-- 4.5 品牌色號 (COLOR CODE) -->
+                        <div class="relative">
+                            <label class="block font-sans font-bold text-planner-navy mb-3 text-sm uppercase tracking-wider flex items-center">COLOR CODE <span class="text-planner-rust text-[10px] ml-2 tracking-normal">(與顏色二選一)</span></label>
+                            <input type="text" id="input-color-code" placeholder="例如：31號..." class="digital-input w-full px-4 py-3 text-lg">
+                            
+                            <div id="quick-codes-container" class="hidden mt-4 bg-planner-paper p-4 rounded-xl border border-planner-warmgrey shadow-sm">
+                                <span class="text-xs text-planner-olive font-bold uppercase mb-3 block tracking-wider flex items-center gap-1">
+                                    <i data-lucide="zap" class="w-4 h-4"></i> 盛唐牛奶棉 專屬色號快速輸入
+                                </span>
+                                <div class="flex flex-wrap gap-2" id="sheng-tang-codes-list"></div>
+                            </div>
+                        </div>
+
+                        <!-- 5. 粗幼度 -->
+                        <div class="relative">
+                            <label class="block font-sans font-bold text-planner-navy mb-3 text-sm uppercase tracking-wider">HOOK SIZE</label>
+                            <div class="flex flex-wrap gap-3" id="group-thickness"></div>
+                            <!-- 手繪風毛線杯墊插圖 -->
+                            <svg viewBox="0 0 80 80" class="w-20 h-20 absolute -right-24 top-0 pointer-events-none transform -rotate-12 opacity-80 hidden lg:block" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="40" cy="40" r="30" fill="#98A9BA" stroke="#5A524A" stroke-width="1.5"/>
+                                <circle cx="40" cy="40" r="22" fill="none" stroke="#5A524A" stroke-width="1.5" stroke-dasharray="4 4"/>
+                                <circle cx="40" cy="40" r="14" fill="none" stroke="#5A524A" stroke-width="1.5" stroke-dasharray="3 3"/>
+                                <circle cx="40" cy="40" r="6" fill="none" stroke="#5A524A" stroke-width="1.5"/>
+                                <path d="M 10,40 L 5,40 M 70,40 L 75,40 M 40,10 L 40,5 M 40,70 L 40,75 M 19,19 L 15,15 M 61,19 L 65,15 M 19,61 L 15,65 M 61,61 L 65,65" fill="none" stroke="#5A524A" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+
+                        <!-- 6. 存貨量 (強制必填設定) -->
+                        <div class="grid-bg p-6 border border-planner-warmgrey rounded-xl flex flex-col items-center justify-center shadow-sm">
+                            <label class="block font-sans font-bold text-planner-navy mb-4 text-sm uppercase tracking-wider">QTY IN STOCK <span class="text-planner-rust">*</span></label>
+                            <div class="flex items-center gap-6 bg-planner-card border border-planner-warmgrey rounded-xl px-5 py-2 shadow-sm">
+                                <button type="button" onclick="changeQty(-1)" class="text-planner-olive hover:text-planner-navy transition-colors p-1"><i data-lucide="minus" class="w-5 h-5"></i></button>
+                                <input type="number" id="input-quantity" value="" placeholder="-" class="font-sans text-2xl font-bold text-planner-navy w-16 text-center bg-transparent border-none outline-none no-arrows">
+                                <button type="button" onclick="changeQty(1)" class="text-planner-olive hover:text-planner-navy transition-colors p-1"><i data-lucide="plus" class="w-5 h-5"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- 7. 用途 -->
+                        <div>
+                            <label class="block font-sans font-bold text-planner-navy mb-3 text-sm uppercase tracking-wider">SUITABLE FOR</label>
+                            <div class="flex flex-wrap gap-3" id="group-suitable"></div>
+                        </div>
+
+                        <!-- 8. 底部評價輸入 -->
+                        <div class="mt-10 bg-planner-card rounded-xl border border-planner-warmgrey p-4 shadow-sm flex flex-col gap-3">
+                            <textarea id="input-review" rows="3" placeholder="你的評價..." class="w-full bg-transparent border-none outline-none font-typewriter text-base text-planner-navy resize-none"></textarea>
+                        </div>
+
+                        <!-- 提交按鈕 -->
+                        <div class="pt-6 pb-12 flex gap-4 border-t border-planner-lightgrey">
+                            <button type="submit" class="flex-1 bg-planner-navy text-white font-sans font-semibold tracking-wider text-sm uppercase py-4 px-6 rounded-lg shadow-md transition-all hover:bg-opacity-90 flex justify-center items-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i>
+                                <span id="submit-btn-text">SAVE TO PLANNER</span>
+                            </button>
+                            <button type="button" onclick="resetForm()" id="cancel-btn" class="hidden bg-planner-lightgrey text-planner-navy font-sans font-semibold tracking-wider text-sm uppercase py-4 px-6 rounded-lg transition-all hover:bg-planner-warmgrey">
+                                CANCEL
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- ================= 第2版面：查看存貨 ================= -->
+                <section id="page-list" class="hidden animate-fade-in w-full">
+                    
+                    <!-- 搜尋與篩選列 -->
+                    <div class="bg-planner-card p-5 border border-planner-warmgrey rounded-xl shadow-sm mb-8">
+                        <div class="relative mb-5">
+                            <i data-lucide="search" class="absolute left-4 top-3.5 text-planner-olive w-5 h-5"></i>
+                            <input type="text" id="search-box" placeholder="Search keywords..." class="digital-input w-full pl-12 pr-4 py-3 text-base">
+                        </div>
+
+                        <div class="flex flex-wrap gap-4 no-scrollbar overflow-x-auto">
+                            <select id="filter-category" class="digital-input px-3 py-2 text-sm font-medium cursor-pointer flex-1 min-w-[140px]">
+                                <option value="">所有種類</option>
+                            </select>
+                            <select id="filter-location" class="digital-input px-3 py-2 text-sm font-medium cursor-pointer flex-1 min-w-[140px]">
+                                <option value="">所有地點</option>
+                            </select>
+                            <select id="filter-thickness" class="digital-input px-3 py-2 text-sm font-medium cursor-pointer flex-1 min-w-[140px]">
+                                <option value="">所有針號</option>
+                            </select>
+                            <select id="filter-color" class="digital-input px-3 py-2 text-sm font-medium cursor-pointer flex-1 min-w-[140px]">
+                                <option value="">所有顏色</option>
+                            </select>
+                            <select id="filter-suitable" class="digital-input px-3 py-2 text-sm font-medium cursor-pointer flex-1 min-w-[140px]">
+                                <option value="">所有用途</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 總存貨量統計 -->
+                    <div class="flex justify-between items-center mb-6 px-1">
+                        <span class="text-sm font-bold text-planner-olive font-sans uppercase tracking-wider">
+                            RESULTS: <span id="result-count" class="text-planner-navy">0</span>
+                        </span>
+                        <div class="font-sans font-bold text-planner-navy uppercase tracking-wider flex items-center gap-2 text-sm border bg-planner-lightgrey px-4 py-2 rounded-lg border-planner-warmgrey">
+                            Total YARN: <span id="total-quantity" class="text-xl text-planner-rust ml-1">0</span>
+                        </div>
+                    </div>
+
+                    <!-- 卡片網格 -->
+                    <div id="yarn-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12 w-full">
+                        <!-- JS 渲染 -->
+                    </div>
+                    
+                    <!-- 空狀態提示 -->
+                    <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-planner-olive">
+                        <svg viewBox="0 0 100 100" class="w-36 h-36 mb-4 opacity-90" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 15,65 L 85,65 C 88,65 90,67 90,70 L 90,80 C 90,85 85,88 80,88 L 20,88 C 15,88 10,85 10,80 L 10,70 C 10,67 12,65 15,65 Z" fill="#B8C5D6" stroke="#5A524A" stroke-width="1.5" stroke-linejoin="round"/>
+                            <path d="M 20,70 L 20,85 M 30,70 L 30,85 M 40,70 L 40,85 M 50,70 L 50,85 M 60,70 L 60,85 M 70,70 L 70,85 M 80,70 L 80,85" fill="none" stroke="#5A524A" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+                            <path d="M 25,35 L 75,35 C 80,35 85,40 85,45 L 85,65 L 15,65 L 15,45 C 15,40 20,35 25,35 Z" fill="#DCA8A4" stroke="#5A524A" stroke-width="1.5" stroke-linejoin="round"/>
+                            <ellipse cx="50" cy="35" rx="20" ry="6" fill="#F5EBE1" stroke="#5A524A" stroke-width="1.5"/>
+                            <path d="M 30,45 L 33,52 L 27,48 L 34,48 L 28,52 Z M 70,45 L 73,52 L 67,48 L 74,48 L 68,52 Z" fill="#F5EBE1" stroke="#5A524A" stroke-width="1" stroke-linejoin="round"/>
+                            <path d="M 15,45 Q 50,60 85,45" fill="none" stroke="#5A524A" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <p class="text-lg font-sans font-medium mt-2">No records found.</p>
+                    </div>
+
+                </section>
+
+            </div> <!-- End of content area -->
+        </div> <!-- End of scroll area -->
+
+    </main>
+
+    <!-- 專屬自訂彈出視窗 ( Custom Modal ) -->
+    <div id="custom-dialog" class="hidden fixed inset-0 bg-planner-navy/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-planner-card rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-planner-warmgrey relative">
+            <h3 id="dialog-title" class="font-sans text-xl font-bold text-planner-navy mb-3 uppercase tracking-wider border-b border-planner-lightgrey pb-2">提示</h3>
+            <p id="dialog-message" class="text-sm font-sans text-planner-navy leading-relaxed mb-6"></p>
+            <div class="flex gap-3 justify-end">
+                <button id="dialog-cancel-btn" class="hidden px-4 py-2 bg-planner-lightgrey hover:bg-planner-warmgrey text-planner-navy rounded-lg font-semibold text-sm transition-colors">取消</button>
+                <button id="dialog-confirm-btn" class="px-4 py-2 bg-planner-navy hover:bg-opacity-90 text-white rounded-lg font-semibold text-sm transition-colors">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 資料備份 Modal -->
+    <div id="data-modal" class="hidden fixed inset-0 bg-planner-navy/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-planner-card rounded-2xl p-8 max-w-sm w-full shadow-2xl relative border border-planner-warmgrey">
+            <button onclick="toggleDataModal()" class="absolute top-4 right-4 text-planner-olive hover:text-planner-navy">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <h3 class="font-sans text-xl font-bold text-planner-navy mb-4 uppercase tracking-wider border-b border-planner-lightgrey pb-3">
+                ARCHIVE SETTINGS
+            </h3>
+            <p class="text-sm font-sans text-planner-olive mb-6">
+                Copy your digital planner code or import from another device.
+            </p>
+            
+            <div class="space-y-4">
+                <button onclick="exportData()" class="w-full bg-planner-sage text-white py-3 rounded-lg font-sans font-semibold shadow-sm hover:opacity-90 transition-colors flex justify-center items-center gap-2">
+                    <i data-lucide="copy" class="w-4 h-4"></i> COPY CODE
+                </button>
+                <div class="pt-4 border-t border-planner-lightgrey">
+                    <textarea id="import-data-text" rows="3" placeholder="Paste code here..." class="digital-input w-full px-3 py-2 text-xs mb-3 font-mono"></textarea>
+                    <button onclick="importData()" class="w-full bg-planner-lightgrey hover:bg-planner-warmgrey text-planner-navy py-3 rounded-lg font-sans font-semibold transition-colors flex justify-center items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4 text-planner-rust"></i> PASTE & IMPORT
+                    </button>
+                </div>
+            </div>
+            <div id="modal-msg" class="text-center font-sans text-sm font-bold text-planner-sage mt-4 hidden">Success!</div>
+        </div>
+    </div>
+
+
+    <script>
+        const options = {
+            category: ['盛唐牛奶棉', 'Liliarge 韓文', 'Jute Yarn', 'Piccolo', '紅魚牌合股線', '空心棉', '日式粗麻'],
+            location: ['淘寶', '行街買', 'DAISO', '社署'],
+            thickness: ['3', '3.5', '3.75'],
+            suitable: ['杯墊', '帽', '袋', '貼身物品', '小飾物', '廚房用品'],
+            shengTangCodes: ['10號 (紅色)', '31號 (棗紅色)', '71號 (桔)', '36號 (綠色)', '60號 (白,灰色)', '39號 (旗袍)', '63號 (混合)']
+        };
+
+        let yarns = []; 
+        let currentEditingId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            loadData();
+            renderFormOptions();
+            renderShengTangQuickCodes();
+            updateFilterDropdowns();
+            renderList();
+            
+            document.getElementById('yarn-form').addEventListener('submit', handleFormSubmit);
+            document.getElementById('search-box').addEventListener('input', renderList);
+            document.getElementById('filter-category').addEventListener('change', renderList);
+            document.getElementById('filter-location').addEventListener('change', renderList);
+            document.getElementById('filter-thickness').addEventListener('change', renderList);
+            document.getElementById('filter-color').addEventListener('change', renderList);
+            document.getElementById('filter-suitable').addEventListener('change', renderList);
+
+            document.getElementById('group-category').addEventListener('change', checkCategoryForCodes);
+        });
+
+        function showDialog(title, message, isConfirm, onConfirm) {
+            const dialog = document.getElementById('custom-dialog');
+            const dialogTitle = document.getElementById('dialog-title');
+            const dialogMessage = document.getElementById('dialog-message');
+            const cancelBtn = document.getElementById('dialog-cancel-btn');
+            const confirmBtn = document.getElementById('dialog-confirm-btn');
+
+            dialogTitle.innerText = title;
+            dialogMessage.innerHTML = message;
+
+            if (isConfirm) {
+                cancelBtn.classList.remove('hidden');
+            } else {
+                cancelBtn.classList.add('hidden');
+            }
+
+            dialog.classList.remove('hidden');
+
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            newConfirmBtn.addEventListener('click', () => {
+                dialog.classList.add('hidden');
+                if (onConfirm) onConfirm();
+            });
+
+            cancelBtn.onclick = () => {
+                dialog.classList.add('hidden');
+            };
+        }
+
+        function renderShengTangQuickCodes() {
+            const container = document.getElementById('sheng-tang-codes-list');
+            container.innerHTML = '';
+            options.shengTangCodes.forEach(code => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'bg-white border border-planner-warmgrey text-planner-navy text-xs px-3 py-1.5 rounded-md hover:bg-planner-sage hover:text-white transition-colors shadow-sm font-medium';
+                btn.innerText = code;
+                btn.onclick = () => {
+                    document.getElementById('input-color-code').value = code;
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function checkCategoryForCodes() {
+            const category = getRadioValue('category');
+            const container = document.getElementById('quick-codes-container');
+            if (category === '盛唐牛奶棉') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function loadData() {
+            const stored = localStorage.getItem('crochet_digital_planner');
+            if (stored) {
+                try { 
+                    yarns = JSON.parse(stored); 
+                    yarns = yarns.map(y => ({...y, id: y.id || String(Date.now() + Math.random())}));
+                } catch (e) { yarns = []; }
+            } else {
+                const oldNames = ['crochet_scrapbook', 'crochet_yarns_journal', 'crochet_yarns_fairytale', 'crochet_yarns'];
+                for(let name of oldNames) {
+                    const old = localStorage.getItem(name);
+                    if(old) { 
+                        try { 
+                            yarns = JSON.parse(old); 
+                            yarns = yarns.map(y => ({...y, id: y.id || String(Date.now() + Math.random())}));
+                            saveData(); 
+                            break; 
+                        } catch(e){} 
+                    }
+                }
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('crochet_digital_planner', JSON.stringify(yarns));
+            updateFilterDropdowns();
+        }
+
+        function switchTab(tab) {
+            const pageAdd = document.getElementById('page-add');
+            const pageList = document.getElementById('page-list');
+            const tabAdd = document.getElementById('tab-add');
+            const tabList = document.getElementById('tab-list');
+
+            const activeClass = "pb-3 font-sans font-semibold text-lg text-planner-navy border-b-2 border-planner-navy -mb-[2px] transition-all";
+            const inactiveClass = "pb-3 font-sans font-semibold text-lg text-planner-olive hover:text-planner-navy border-b-2 border-transparent -mb-[2px] transition-all";
+
+            if (tab === 'add') {
+                pageAdd.classList.remove('hidden'); pageList.classList.add('hidden');
+                tabAdd.className = activeClass; tabList.className = inactiveClass;
+            } else {
+                pageAdd.classList.add('hidden'); pageList.classList.remove('hidden');
+                tabList.className = activeClass; tabAdd.className = inactiveClass;
+                renderList(); 
+            }
+        }
+
+        function changeQty(delta) {
+            const input = document.getElementById('input-quantity');
+            let current = parseInt(input.value);
+            if(isNaN(current)) current = 0;
+            current += delta;
+            if(current < 0) current = 0;
+            input.value = current;
+        }
+
+        function renderFormOptions() {
+            createRadioGroup('category', options.category, 'group-category');
+            createRadioGroup('location', options.location, 'group-location');
+            createRadioGroup('thickness', options.thickness, 'group-thickness');
+            createCheckboxGroup('suitable', options.suitable, 'group-suitable');
+
+            const catOtherInput = document.getElementById('category-other-input');
+            if (catOtherInput) {
+                catOtherInput.addEventListener('input', checkCategoryForCodes);
+            }
+        }
+
+        function createRadioGroup(name, arr, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            arr.forEach((item, index) => {
+                container.innerHTML += `
+                    <label class="cursor-pointer digital-btn">
+                        <input type="radio" name="${name}" value="${item}" class="peer hidden">
+                        <span>${item}</span>
+                    </label>
+                `;
+            });
+            const otherId = `${name}-other`;
+            container.innerHTML += `
+                <label class="cursor-pointer digital-btn flex items-center gap-2">
+                    <input type="radio" name="${name}" value="OTHER" id="${otherId}-radio" class="peer hidden">
+                    <span>其他</span>
+                    <input type="text" id="${otherId}-input" placeholder="請輸入..." class="hidden peer-checked:block bg-transparent border-b border-planner-navy outline-none text-sm w-24 px-1 font-typewriter">
+                </label>
+            `;
+        }
+
+        function createCheckboxGroup(name, arr, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            arr.forEach((item) => {
+                container.innerHTML += `
+                    <label class="cursor-pointer digital-btn">
+                        <input type="checkbox" name="${name}" value="${item}" class="peer hidden">
+                        <span>${item}</span>
+                    </label>
+                `;
+            });
+            const otherId = `${name}-other`;
+            container.innerHTML += `
+                <div class="flex items-center gap-2 digital-btn">
+                    <label class="cursor-pointer">
+                        <input type="checkbox" name="${name}" id="${otherId}-check" value="OTHER" class="peer hidden" onchange="document.getElementById('${otherId}-input').classList.toggle('hidden', !this.checked)">
+                        <span>其他</span>
+                    </label>
+                    <input type="text" id="${otherId}-input" placeholder="多個可用逗號分隔..." class="hidden bg-transparent border-b border-planner-navy outline-none text-sm w-36 px-1 font-typewriter">
+                </div>
+            `;
+        }
+
+        function getRadioValue(name) {
+            const checked = document.querySelector(`input[name="${name}"]:checked`);
+            if (!checked) return '';
+            return checked.value === 'OTHER' ? document.getElementById(`${name}-other-input`).value.trim() : checked.value;
+        }
+
+        function getCheckboxValues(name) {
+            let values = [];
+            document.querySelectorAll(`input[name="${name}"]:checked`).forEach(cb => {
+                if (cb.value === 'OTHER') {
+                    const custom = document.getElementById(`${name}-other-input`).value.trim();
+                    if(custom) {
+                        const customArr = custom.split(/[,，]/).map(s => s.trim()).filter(s => s);
+                        values = values.concat(customArr);
+                    }
+                } else { values.push(cb.value); }
+            });
+            return values;
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const category = getRadioValue('category');
+            const colorName = document.getElementById('input-color-name').value.trim();
+            const colorCode = document.getElementById('input-color-code').value.trim();
+            const price = document.getElementById('input-price').value.trim();
+            const thickness = getRadioValue('thickness');
+            const qtyInput = document.getElementById('input-quantity').value.trim();
+            
+            if (!category) { 
+                showDialog('錯誤', '請務必選擇 TYPE (種類)！', false);
+                return; 
+            }
+            if (!colorName && !colorCode) { 
+                showDialog('錯誤', '請填寫 COLOR NAME (顏色) 或 COLOR CODE (品牌色號) 其中一項！', false);
+                return; 
+            }
+            if (qtyInput === '') {
+                showDialog('錯誤', '請務必填寫 QTY IN STOCK (存貨數量)！<br>若無存貨可填寫 0。', false);
+                return;
+            }
+
+            const quantity = parseInt(qtyInput) || 0;
+            let warnings = [];
+            if (!price) warnings.push('PRICE (價錢)');
+            if (!thickness) warnings.push('HOOK SIZE (粗幼度)');
+
+            const saveRecord = () => {
+                const yarnData = {
+                    id: currentEditingId || Date.now().toString(),
+                    category, 
+                    location: getRadioValue('location'), 
+                    price: price, 
+                    colorName: colorName, 
+                    colorCode: colorCode, 
+                    thickness: thickness, 
+                    suitable: getCheckboxValues('suitable'), 
+                    quantity: quantity, 
+                    review: document.getElementById('input-review').value.trim(),
+                };
+
+                if (currentEditingId) {
+                    const index = yarns.findIndex(y => String(y.id) === String(currentEditingId));
+                    if (index > -1) yarns[index] = yarnData;
+                } else { yarns.unshift(yarnData); }
+
+                saveData(); resetForm(); switchTab('list');
+                showToast(currentEditingId ? '記錄已更新' : '記錄已儲存');
+            };
+
+            if (warnings.length > 0) {
+                const messageHtml = `溫馨提示，你尚未填寫以下資訊：<br><br><span class="text-planner-rust font-bold">${warnings.join('、')}</span><br><br>是否仍然要略過並儲存這筆記錄？`;
+                showDialog('溫馨提示', messageHtml, true, saveRecord);
+            } else {
+                saveRecord();
+            }
+        }
+
+        function editYarn(id) {
+            const yarn = yarns.find(y => String(y.id) === String(id));
+            if (!yarn) return;
+            currentEditingId = yarn.id;
+            
+            document.getElementById('submit-btn-text').innerText = 'UPDATE PLANNER';
+            document.getElementById('cancel-btn').classList.remove('hidden');
+
+            document.getElementById('input-price').value = yarn.price || '';
+            document.getElementById('input-color-name').value = yarn.colorName || yarn.color || '';
+            document.getElementById('input-color-code').value = yarn.colorCode || '';
+            document.getElementById('input-quantity').value = yarn.quantity !== undefined ? yarn.quantity : '';
+            document.getElementById('input-review').value = yarn.review || '';
+
+            setRadioValue('category', yarn.category);
+            setRadioValue('location', yarn.location);
+            setRadioValue('thickness', yarn.thickness);
+            setCheckboxValues('suitable', yarn.suitable);
+
+            checkCategoryForCodes(); 
+
+            switchTab('add'); window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setRadioValue(name, value) {
+            if(!value) return;
+            const radios = document.querySelectorAll(`input[name="${name}"]`);
+            let found = false;
+            radios.forEach(r => { if(r.value === value) { r.checked = true; found = true; } });
+            if(!found) {
+                const otherRadio = document.getElementById(`${name}-other-radio`);
+                if(otherRadio) otherRadio.checked = true; 
+                const input = document.getElementById(`${name}-other-input`);
+                if(input) {
+                    input.value = value; 
+                    input.classList.remove('hidden');
+                }
+            } else { 
+                const input = document.getElementById(`${name}-other-input`);
+                if(input) input.classList.add('hidden'); 
+            }
+        }
+
+        function setCheckboxValues(name, values) {
+            if(!values || !Array.isArray(values)) return;
+            document.querySelectorAll(`input[name="${name}"]`).forEach(cb => cb.checked = false);
+            
+            const otherCheck = document.getElementById(`${name}-other-check`);
+            if(otherCheck) otherCheck.checked = false;
+            const otherInput = document.getElementById(`${name}-other-input`);
+            if(otherInput) {
+                otherInput.classList.add('hidden');
+                otherInput.value = '';
+            }
+
+            let otherValues = [];
+            values.forEach(val => {
+                const cb = document.querySelector(`input[name="${name}"][value="${val}"]`);
+                if(cb) cb.checked = true; else otherValues.push(val);
+            });
+            if(otherValues.length > 0) {
+                if(otherCheck) otherCheck.checked = true;
+                if(otherInput) {
+                    otherInput.value = otherValues.join(', '); 
+                    otherInput.classList.remove('hidden');
+                }
+            }
+        }
+
+        function resetForm() {
+            currentEditingId = null;
+            document.getElementById('yarn-form').reset();
+            document.getElementById('submit-btn-text').innerText = 'SAVE TO PLANNER';
+            document.getElementById('cancel-btn').classList.add('hidden');
+            
+            document.getElementById('input-quantity').value = '';
+            
+            document.querySelectorAll('input[type="text"][id$="-input"]').forEach(el => {
+                el.classList.add('hidden');
+                el.value = '';
+            });
+            
+            document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+            
+            checkCategoryForCodes(); 
+        }
+
+        function deleteYarn(id) {
+            showDialog('確認刪除', '確定要刪除這筆記錄嗎？這個動作無法復原。', true, () => {
+                yarns = yarns.filter(y => String(y.id) !== String(id));
+                saveData(); renderList(); showToast('記錄已刪除');
+            });
+        }
+
+        function updateFilterDropdowns() {
+            const catSet = new Set(options.category);
+            const locSet = new Set(options.location);
+            const suitSet = new Set(options.suitable);
+            const thickSet = new Set(options.thickness);
+            const colorSet = new Set(['白', '黑', '灰', '卡其', '啡', '紅', '橙', '黃', '綠', '青', '藍', '紫']);
+
+            yarns.forEach(y => {
+                if(y.category) catSet.add(y.category);
+                if(y.location) locSet.add(y.location);
+                if(y.thickness) thickSet.add(y.thickness);
+                if(y.colorName || y.color) colorSet.add(y.colorName || y.color);
+                if(y.suitable) y.suitable.forEach(s => suitSet.add(s));
+            });
+
+            populateSelect('filter-category', catSet, '所有種類');
+            populateSelect('filter-location', locSet, '所有地點');
+            populateSelect('filter-thickness', thickSet, '所有針號');
+            populateSelect('filter-color', colorSet, '所有顏色');
+            populateSelect('filter-suitable', suitSet, '所有用途');
+        }
+
+        function populateSelect(id, set, defaultText) {
+            const select = document.getElementById(id);
+            const currentVal = select.value;
+            select.innerHTML = `<option value="">${defaultText}</option>`;
+            [...set].sort().forEach(item => { select.innerHTML += `<option value="${item}">${item}</option>`; });
+            if([...set].includes(currentVal)) select.value = currentVal;
+        }
+
+        function renderList() {
+            const keyword = document.getElementById('search-box').value.toLowerCase().trim();
+            const filterCat = document.getElementById('filter-category').value;
+            const filterLoc = document.getElementById('filter-location').value;
+            const filterSuit = document.getElementById('filter-suitable').value;
+            const filterThick = document.getElementById('filter-thickness').value;
+            const filterColor = document.getElementById('filter-color').value;
+
+            const filtered = yarns.filter(y => {
+                const itemColor = y.colorName || y.color || '';
+
+                if(filterCat && y.category !== filterCat) return false;
+                if(filterLoc && y.location !== filterLoc) return false;
+                if(filterSuit && !(y.suitable || []).includes(filterSuit)) return false;
+                if(filterThick && y.thickness !== filterThick) return false;
+                if(filterColor && itemColor !== filterColor) return false;
+                
+                if (keyword) {
+                    const searchString = `${y.category||''} ${y.location||''} ${itemColor} ${y.colorCode||''} ${y.thickness||''} ${(y.suitable||[]).join(' ')} ${y.review||''}`.toLowerCase();
+                    if (!searchString.includes(keyword)) return false;
+                }
+                return true;
+            });
+
+            document.getElementById('result-count').innerText = filtered.length;
+            document.getElementById('total-quantity').innerText = filtered.reduce((sum, item) => sum + (parseInt(item.quantity) || 0), 0);
+
+            const container = document.getElementById('yarn-list');
+            const emptyState = document.getElementById('empty-state');
+            container.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden'); emptyState.classList.add('flex');
+            } else {
+                emptyState.classList.add('hidden'); emptyState.classList.remove('flex');
+                
+                filtered.forEach((y) => {
+                    const suitableTags = (y.suitable || []).map(s => 
+                        `<span class="bg-planner-lightgrey text-planner-navy px-2 py-1 rounded-md text-xs font-semibold mr-1.5 mb-1.5 inline-block border border-planner-warmgrey">${s}</span>`
+                    ).join('');
+
+                    const displayColorName = y.colorName || y.color || '未填寫顏色';
+
+                    const card = `
+                        <div class="bg-planner-card rounded-xl p-5 border border-planner-warmgrey shadow-sm hover:shadow-md transition-shadow relative group flex flex-col justify-between">
+                            
+                            <div class="absolute top-3 right-3 flex gap-2 opacity-100 z-20">
+                                <button type="button" onclick="editYarn('${y.id}')" class="p-2 text-planner-olive hover:text-planner-navy bg-planner-paper rounded-md border border-planner-warmgrey cursor-pointer hover:bg-planner-warmgrey transition-colors shadow-sm"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                <button type="button" onclick="deleteYarn('${y.id}')" class="p-2 text-planner-rust hover:text-red-700 bg-planner-paper rounded-md border border-planner-warmgrey cursor-pointer hover:bg-red-100 transition-colors shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+                            </div>
+
+                            <div>
+                                <div class="flex items-start justify-between border-b border-planner-lightgrey pb-4 mb-4 mt-2">
+                                    <div class="pr-6">
+                                        <h3 class="font-typewriter text-xl font-bold text-planner-navy flex items-center gap-2 mb-1">
+                                            <div class="w-3.5 h-3.5 rounded-full border border-planner-warmgrey" style="background-color: ${guessColorHex(displayColorName)}"></div>
+                                            ${displayColorName} 
+                                        </h3>
+                                        <div class="text-xs font-semibold font-sans text-planner-sage uppercase tracking-wider">${y.category}</div>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <div class="font-sans text-3xl font-bold text-planner-navy">${y.quantity}</div>
+                                        <div class="text-[10px] text-planner-olive uppercase font-bold tracking-widest mt-0.5">QTY</div>
+                                    </div>
+                                </div>
+
+                                <div class="font-sans text-xs text-planner-navy mb-4 grid grid-cols-2 gap-y-2">
+                                    ${y.colorCode ? `<div><span class="text-planner-olive uppercase font-semibold mr-1">Code</span><br> <span class="font-typewriter text-sm font-bold text-planner-rust">${y.colorCode}</span></div>` : ''}
+                                    ${y.price ? `<div><span class="text-planner-olive uppercase font-semibold mr-1">Price</span><br> <span class="font-typewriter text-sm">$${y.price}</span></div>` : ''}
+                                    ${y.thickness ? `<div><span class="text-planner-olive uppercase font-semibold mr-1">Hook</span><br> <span class="font-typewriter text-sm">${y.thickness}</span></div>` : ''}
+                                    ${y.location ? `<div class="col-span-2"><span class="text-planner-olive uppercase font-semibold mr-1">Loc</span><br> <span class="font-typewriter text-sm">${y.location}</span></div>` : ''}
+                                </div>
+
+                                <div class="mb-2">${suitableTags}</div>
+                            </div>
+                            
+                            ${y.review ? `
+                                <div class="mt-3 pt-3 border-t border-planner-lightgrey font-typewriter text-sm text-planner-olive leading-relaxed bg-planner-paper p-3 rounded-lg">
+                                    ${y.review}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+                lucide.createIcons();
+            }
+        }
+
+        function guessColorHex(colorName) {
+            if(!colorName) return 'transparent';
+            if(colorName.startsWith('#')) return colorName;
+            
+            const colorMap = {
+                '紅': '#A0522D', '粉': '#E0B0B0', '橙': '#D98A5B', '橘': '#D98A5B', '黃': '#E6C280',
+                '綠': '#8F9B82', '藍': '#7A9AAB', '紫': '#A295B3', '黑': '#2C3E50',
+                '白': '#F7F6F2', '灰': '#A8A6A1', '啡': '#8B7A66', '咖': '#8B7A66', '卡其': '#D1C8B4'
+            };
+            for(let key in colorMap) { if(colorName.includes(key)) return colorMap[key]; }
+            return '#DEDCD5'; 
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-planner-navy text-white font-sans font-medium text-sm px-6 py-3 rounded-full shadow-lg z-50 transition-all duration-300' ;
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        function toggleDataModal() {
+            const modal = document.getElementById('data-modal');
+            modal.classList.toggle('hidden');
+            document.getElementById('modal-msg').classList.add('hidden');
+            document.getElementById('import-data-text').value = '';
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(yarns);
+            if(navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(dataStr).then(() => { showToast('代碼已複製到剪貼簿'); });
+            } else {
+                const textarea = document.createElement("textarea");
+                textarea.value = dataStr; document.body.appendChild(textarea); textarea.select();
+                try { document.execCommand('copy'); showToast('代碼已複製到剪貼簿'); } 
+                catch (err) { 
+                    showDialog('提示', '請手動複製下方框框內的文字。', false); 
+                    document.getElementById('import-data-text').value = dataStr; 
+                }
+                document.body.removeChild(textarea);
+            }
+        }
+
+        function importData() {
+            const text = document.getElementById('import-data-text').value.trim();
+            if(!text) {
+                showDialog('錯誤', '請先貼上資料代碼！', false);
+                return;
+            }
+            try {
+                const parsed = JSON.parse(text);
+                if(Array.isArray(parsed)) {
+                    showDialog('匯入資料', '匯入資料將會覆蓋當前所有記錄，確定要繼續嗎？', true, () => {
+                        yarns = parsed; saveData(); renderList();
+                        showToast('記錄已成功匯入！');
+                        setTimeout(toggleDataModal, 1500);
+                    });
+                } else {
+                    showDialog('錯誤', '無效的資料格式，請檢查代碼。', false);
+                }
+            } catch(e) {
+                showDialog('錯誤', '代碼無效或不完整，請重新複製。', false);
+            }
+        }
+
+    </script>
+</body>
+</html>
+
+
+```
